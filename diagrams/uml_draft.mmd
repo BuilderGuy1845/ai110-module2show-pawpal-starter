@@ -1,0 +1,54 @@
+classDiagram
+    %% PawPal+ UML (draft)
+    class Task {
+        +String title
+        +int duration_minutes
+        +int priority
+        +String time_window
+        +String recurrence
+        +validate()
+        +score()
+    }
+
+    class Pet {
+        +String name
+        +String species
+        +Map preferences
+        +add_task(Task)
+        +remove_task(Task)
+    }
+
+    class Owner {
+        +String name
+        +List available_time_slots
+        +Map preferences
+        +add_pet(Pet)
+    }
+
+    class Scheduler {
+        +Owner owner
+        +Pet pet
+        +List~Task~ tasks
+        +Schedule generate_schedule()
+        +List~Task~ sort_tasks()
+        +fit_tasks_into_slots()
+    }
+
+    class Schedule {
+        +List~ScheduledItem~ items
+        +explain()
+    }
+
+    %% Relationships
+    Owner "1" o-- "0..*" Pet : owns
+    Pet "1" o-- "0..*" Task : has
+    Scheduler ..> Owner : uses
+    Scheduler ..> Pet : uses
+    Scheduler ..> Task : uses
+    Scheduler --> Schedule : produces
+
+    %% Notes
+    note "Task.priority is stored as a numeric weight for deterministic sorting." as N1
+    note "Schedule is returned by Scheduler; contains start times and rationale for each item." as N2
+    N1 .. Task
+    N2 .. Schedule
