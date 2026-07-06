@@ -1,0 +1,78 @@
+classDiagram
+    %% PawPal+ UML (final — matches pawpal_system.py after Phase 3/4)
+    class Task {
+        +String title
+        +int duration_minutes
+        +int priority
+        +String time_window
+        +String time
+        +String recurrence
+        +date due_date
+        +bool completed
+        +String pet_name
+        +validate() bool
+        +mark_complete() void
+        +next_occurrence() Task
+        +score() float
+        +to_dict() Dict
+    }
+
+    class Pet {
+        +String name
+        +String species
+        +Map preferences
+        +List~Task~ tasks
+        +add_task(Task) void
+        +remove_task(Task) void
+        +mark_task_complete(Task) Task
+        +get_tasks(bool include_completed) List~Task~
+    }
+
+    class Owner {
+        +String name
+        +List available_time_slots
+        +Map preferences
+        +List~Pet~ pets
+        +add_pet(Pet) void
+        +remove_pet(Pet) void
+        +get_all_tasks(bool include_completed) List~Task~
+    }
+
+    class Scheduler {
+        +Owner owner
+        +Pet pet
+        +sort_tasks(List~Task~) List~Task~
+        +sort_by_time(List~Task~) List~Task~
+        +filter_tasks(bool completed, String pet_name) List~Task~
+        +detect_conflicts(List~Task~) List~String~
+        +generate_schedule() Schedule
+    }
+
+    class ScheduledItem {
+        +Task task
+        +datetime start_time
+        +String rationale
+    }
+
+    class Schedule {
+        +List~ScheduledItem~ items
+        +explain() List~String~
+    }
+
+    %% Relationships
+    Owner "1" o-- "0..*" Pet : owns
+    Pet "1" o-- "0..*" Task : has
+    Scheduler ..> Owner : uses
+    Scheduler ..> Pet : uses
+    Scheduler ..> Task : sorts/filters
+    Scheduler --> Schedule : produces
+    Schedule "1" o-- "0..*" ScheduledItem : contains
+    ScheduledItem --> Task : wraps
+
+    %% Notes
+    note "Task.priority is a numeric weight for deterministic sorting; Task.time is an HH:MM string." as N1
+    note "Task.next_occurrence() advances due_date via timedelta; Pet.mark_task_complete() spawns the next daily/weekly instance." as N2
+    note "Scheduler.detect_conflicts() returns warning strings for overlapping [start, start+duration) windows." as N3
+    N1 .. Task
+    N2 .. Pet
+    N3 .. Scheduler

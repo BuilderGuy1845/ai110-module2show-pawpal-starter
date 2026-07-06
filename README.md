@@ -164,12 +164,94 @@ implemented as a method on the `Scheduler`, `Task`, or `Pet` class in
 
 ## 📸 Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+Launch the interactive app with:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+```bash
+streamlit run app.py
+```
+
+### Main UI features
+
+The Streamlit app (`app.py`) lets a user:
+
+- **Set up an owner and pets** — edit the owner name and add pets (name + species).
+- **Add tasks to a pet** — enter a title, duration, priority (low/medium/high),
+  a scheduled time, and a repeat setting (none/daily/weekly).
+- **See a pet's tasks sorted by time** — each task shows its status (⏳/✅),
+  time, duration, priority, and a 🔁 badge if it recurs.
+- **Complete tasks** — a "Complete" button marks a task done and, for recurring
+  tasks, automatically schedules the next occurrence.
+- **Browse all tasks with filters** — filter by pet and by completion status;
+  results are shown sorted by time in a clean table.
+- **Generate a daily schedule** — builds the plan across all pets, prints a
+  conflict check, and shows each placement with its reasoning.
+
+### Example workflow
+
+1. **Add a pet** — type `Mochi`, choose `dog`, click **Add pet**.
+2. **Add a task** — select `Mochi`, enter `Give medication`, duration `10`,
+   priority `high`, time `08:30`, repeats `daily`, click **Add task to pet**.
+3. **Add a conflicting task** — add another pet `Luna` and give her a
+   `Vet call` at `08:30`, so two tasks overlap.
+4. **View tasks** — the "All Tasks" section lists everything sorted by time;
+   use the filters to show only Luna's tasks or only incomplete ones.
+5. **Generate the schedule** — click **Generate schedule** to see the ordered
+   plan, a ⚠️ conflict warning for the two 08:30 tasks, and the reasoning for
+   each placement.
+6. **Complete a recurring task** — click **Complete** on `Give medication`; the
+   app confirms the next daily occurrence is scheduled for tomorrow.
+
+### Key Scheduler behaviors shown
+
+- **Sorting** — tasks are displayed in chronological order via
+  `Scheduler.sort_by_time()`.
+- **Filtering** — the pet/status dropdowns drive `Scheduler.filter_tasks()`.
+- **Conflict warnings** — overlapping time windows raise a `st.warning`
+  produced by `Scheduler.detect_conflicts()`.
+- **Recurring tasks** — completing a daily/weekly task spawns its next instance
+  via `Pet.mark_task_complete()` and `Task.next_occurrence()`.
+
+### Sample CLI output (`python main.py`)
+
+The same backend logic can be exercised from the command line. Running
+`python main.py` demonstrates sorting, filtering, conflict detection, and
+recurrence:
+
+```
+All tasks sorted by time
+========================
+08:30 - Give medication (Mochi) [todo]
+08:30 - Vet call (Luna) [todo]
+09:45 - Brush fur (Luna) [todo]
+14:15 - Play with toy (Luna) [done]
+18:00 - Evening walk (Mochi) [todo]
+
+Mochi's tasks only (filter by pet name)
+=======================================
+18:00 - Evening walk
+08:30 - Give medication
+
+Completed tasks only (filter by status)
+=======================================
+14:15 - Play with toy (Luna)
+
+Incomplete tasks, sorted by time
+================================
+08:30 - Give medication (Mochi)
+08:30 - Vet call (Luna)
+09:45 - Brush fur (Luna)
+18:00 - Evening walk (Mochi)
+
+Schedule conflicts
+==================
+WARNING: Conflict: 'Give medication' (Mochi) at 08:30 overlaps 'Vet call' (Luna) at 08:30
+
+Recurring task: complete it and watch the next one appear
+========================================================
+before: 2 tasks for Mochi
+completed: Give medication (due today)
+auto-created: Give medication due 2026-07-06
+after: 3 tasks for Mochi
+```
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
