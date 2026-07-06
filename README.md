@@ -63,19 +63,60 @@ Today's Schedule
 
 ## 🧪 Testing PawPal+
 
+Run the full test suite from the project root:
+
 ```bash
-# Run the full test suite:
-pytest
-
-# Run with coverage:
-pytest --cov
+python -m pytest
 ```
 
-Sample test output:
+### What the tests cover
+
+The suite in `tests/test_pawpal.py` verifies the core scheduling behaviors:
+
+- **Task completion** — `mark_complete()` flips a task's `completed` flag.
+- **Adding tasks** — `Pet.add_task()` grows the pet's task list correctly.
+- **Recurring tasks** — completing a `"daily"` task spawns a next-day instance,
+  a `"weekly"` task spawns a next-week instance (via `timedelta`), and a one-off
+  task spawns nothing.
+- **Conflict detection** — `Scheduler.detect_conflicts()` flags overlapping time
+  windows, ignores non-overlapping tasks, and skips tasks that have no time set.
+
+These behaviors were chosen because they are the logic most likely to break
+silently: date math for recurrence and interval math for conflicts are easy to
+get subtly wrong, so they are worth pinning down with tests.
+
+### Sample test output
 
 ```
-# Paste your pytest output here
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.1.1, pluggy-1.6.0
+cachedir: .pytest_cache
+rootdir: C:\Users\yourp\Desktop\Projects\CodePath\ai110-module2show-pawpal-starter
+configfile: pytest.ini
+testpaths: tests
+collected 8 items
+
+tests/test_pawpal.py::test_task_mark_complete PASSED                     [ 12%]
+tests/test_pawpal.py::test_pet_add_task_increases_count PASSED           [ 25%]
+tests/test_pawpal.py::test_daily_task_spawns_next_day_occurrence PASSED  [ 37%]
+tests/test_pawpal.py::test_weekly_task_spawns_next_week_occurrence PASSED [ 50%]
+tests/test_pawpal.py::test_one_off_task_does_not_spawn_occurrence PASSED [ 62%]
+tests/test_pawpal.py::test_detect_conflicts_flags_overlapping_tasks PASSED [ 75%]
+tests/test_pawpal.py::test_detect_conflicts_ignores_non_overlapping_tasks PASSED [ 87%]
+tests/test_pawpal.py::test_detect_conflicts_skips_tasks_without_time PASSED [100%]
+
+============================== 8 passed in 0.06s ==============================
 ```
+
+### Confidence Level
+
+⭐⭐⭐⭐ (4 / 5)
+
+All 8 tests pass and they cover the trickiest logic (recurrence date math and
+conflict interval math). I held back the fifth star because there are no tests
+yet for `generate_schedule()` end-to-end (slot filling, overflow to
+"no time available") or for edge cases like slots that wrap past midnight, which
+I would add next.
 
 ## 📐 Smarter Scheduling
 
